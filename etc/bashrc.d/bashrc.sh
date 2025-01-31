@@ -923,6 +923,7 @@ usage:
 EOF
 	fi
 }
+export -f chili-qemurunfile
 
 chili-qemufilerun() { chili-qemurunfile $@; }
 filerun() { chili-qemurunfile $@; }
@@ -933,8 +934,6 @@ fileinfo() { for i in "${@}"; do
 	qemu-img info $i
 	echo
 done; }
-export -f fr
-export -f chili-qemurunfile
 
 chili-runcdrom() {
 	if test $# -ge 1; then
@@ -964,8 +963,9 @@ usage:
 EOF
 	fi
 }
+export -f chili-runcdrom
 
-frc() {
+chili-frc() {
 	if test $# -ge 1; then
 		sudo qemu-system-x86_64 \
 			-no-fd-bootchk \
@@ -996,8 +996,9 @@ usage:
 EOF
 	fi
 }
+export -f chili-frc
 
-rf() {
+chili-rf() {
 	if test $# -ge 1; then
 		qemu-system-x86_64 \
 			-m "size=8128,slots=0,maxmem=$((8128 * 1024 * 1024))" \
@@ -1012,6 +1013,7 @@ usage:
 EOF
 	fi
 }
+export -f chili-rf
 
 chili-qemurunimg() {
 	if test $# -ge 1; then
@@ -1042,8 +1044,9 @@ usage:
 EOF
 	fi
 }
+export -f chili-qemurunimg
 
-criartap() {
+chili-criartap() {
 	#criar ponte
 	modprobe tun
 	echo "tun" | sudo tee -a /etc/modules-load.d/modules.conf
@@ -1058,16 +1061,19 @@ criartap() {
 	#	ifconfig br0 10.7.7.66/24
 	ip link show
 }
+export -f chili-criartap
 
 chili-videoultrahd() {
 	sudo xrandr --newmode "2560x1080_60.00" 230.00 2560 2720 2992 3424 1080 1083 1093 1120 -hsync +vsync
 	sudo xrandr --addmode HDMI-0 2560x1080_60.00
 }
+export -f chili-videoultrahd
 
 tms() {
 	#	sudo journalctl -f
 	sudo dmesg -w -T -x
 }
+export -f tms
 
 sr() {
 	sudo systemctl restart $1
@@ -1444,7 +1450,7 @@ chili-gto() {
 }
 export -f chili-gto
 
-gclean() {
+chili-gclean() {
 	local clean="$1"
 	local red=$(tput bold)$(tput setaf 196)
 	local cyan=$(tput setaf 6)
@@ -1943,7 +1949,7 @@ mkpy() { chili-makepy "$@"; }
 makescript() { makebash "$@"; }
 mks() { makebash "$@"; }
 
-mkpyenv() {
+chili-mkpyenv() {
 	#	python3 -m venv tutorial_env
 	#	source tutorial_env/bin/activate
 	if test $# -eq 0; then
@@ -1955,7 +1961,38 @@ mkpyenv() {
 	source $1/bin/activate
 	#	deactivate
 }
-chili-mkpyenv
+export -f chili-mkpyenv
+sh_setLogPrefix() {
+  COL_NC='\e[0m' # No Color
+  COL_LIGHT_GREEN='\e[1;32m'
+  COL_LIGHT_RED='\e[1;31m'
+  TICK="${white}[${COL_LIGHT_GREEN}✓${COL_NC}${white}]"
+  CROSS="${white}[${COL_LIGHT_RED}✗${COL_NC}${white}]"
+  INFO="[i]"
+  # shellcheck disable=SC2034
+  DONE="${COL_LIGHT_GREEN} done!${COL_NC}"
+  OVER="\\r\\033[K"
+  NORMAL="${reset}"
+  SUCCESS="${green}"
+  WARNING="${yellow}"
+  FAILURE="${red}"
+  INFO="${cyan}"
+  BRACKET="${blue}"
+  BMPREFIX="     "
+  DOTPREFIX="  ${blue}::${reset} "
+  #  SUCCESS_PREFIX="${SUCCESS}  ↑  ${NORMAL}"
+  SUCCESS_PREFIX=" $TICK "
+  SUCCESS_SUFFIX="${BRACKET}[${SUCCESS}  OK  ${BRACKET}]${NORMAL}"
+  #  FAILURE_PREFIX="${FAILURE}  ↓  ${NORMAL}"
+  FAILURE_PREFIX=" $CROSS "
+  FAILURE_SUFFIX="${BRACKET}[${FAILURE} FAIL ${BRACKET}]${NORMAL}"
+  WARNING_PREFIX="${WARNING}  W  ${NORMAL}"
+  WARNING_SUFFIX="${BRACKET}[${WARNING} WARN ${BRACKET}]${NORMAL}"
+  SKIP_PREFIX="${INFO}  S  ${NORMAL}"
+  SKIP_SUFFIX="${BRACKET}[${INFO} SKIP ${BRACKET}]${NORMAL}"
+  WAIT_PREFIX="${WARNING}  R  ${NORMAL}"
+  WAIT_SUFFIX="${BRACKET}[${WARNING} WAIT ${BRACKET}]${NORMAL}"
+}
 
 log_msg() {
 	printf " %b %s\\n" "${TICK}" "${*}"
@@ -2079,7 +2116,7 @@ makebash() {
 		declare _VERSION_="1.0.0-$(date +'%Y%m%d')"
 		declare distro="\$(uname -n)"
 		declare DEPENDENCIES=(tput)
-		source /usr/share/fetch/core.sh
+		#source /usr/share/fetch/core.sh
 
 		MostraErro() {
 		  echo "erro: \${red}\$1\${reset} => comando: \${cyan}'\$2'\${reset} => result=\${yellow}\$3\${reset}"
