@@ -30,7 +30,20 @@ alias la='ls -A' # Show all entries except '.' and '..'
 alias l='ls -CF' # Classify entries and display directories with trailing slash
 
 # Load ble.sh for an enhanced interactive shell experience
-source /usr/share/blesh/ble.sh --noattach --rcfile /etc/bigblerc
+# Verifica se a variável BLE_VERSION está definida e não vazia,
+# indicando que o ble.sh já foi carregado anteriormente.
+# Além disso, verifica se o arquivo /etc/bigblerc existe.
+if [[ -n ${BLE_VERSION-} && -e /etc/bigblerc ]]; then
+	# Se o ble.sh já estiver carregado, apenas carrega o arquivo de configuração personalizado.
+	source /etc/bigblerc
+
+# Caso contrário, verifica se tanto o script ble.sh quanto o arquivo de configuração existem.
+elif [[ -e /usr/share/blesh/ble.sh && -e /etc/bigblerc ]]; then
+	# Se ambos existirem, carrega o ble.sh com opções específicas:
+	# --noattach   -> Evita que o ble.sh assuma o controle imediato do shell interativo.
+	# --rcfile     -> Define o arquivo de configuração que será utilizado pelo ble.sh.
+	source /usr/share/blesh/ble.sh --noattach --rcfile /etc/bigblerc
+fi
 
 # ----- Pyenv Configuration -----
 # If pyenv is installed, activate it automatically in the home directory.
@@ -44,9 +57,12 @@ fi
 # ----- GRC-RS Configuration -----
 # Enable colorized output for various commands
 GRC="/usr/bin/grc-rs"
-if tty -s && [ -n "$TERM" ] && [ "$TERM" != "dumb" ] && [ -n "$GRC" ]; then
+if tty -s && [ -n "$TERM" ] && [ "$TERM" != "dumb" ] && command -v "$GRC" >/dev/null; then
+
+	# Define um alias para facilitar a aplicação do grc-rs nos comandos.
 	alias colourify="$GRC"
-	# List of commands to check for colorization
+
+	# Lista de comandos que serão configurados para saída colorida.
 	commands=(
 		ant blkid configure df diff dig dnf docker-machinels dockerimages dockerinfo
 		dockernetwork dockerps dockerpull dockersearch dockerversion du fdisk
@@ -57,12 +73,14 @@ if tty -s && [ -n "$TERM" ] && [ "$TERM" != "dumb" ] && [ -n "$GRC" ]; then
 		ss stat sysctl tcpdump traceroute tune2fs ulimit uptime vmstat wdiff yaml
 	)
 
-	# Iterate through the commands and define the alias if the command exists
+	# Itera pela lista de comandos e cria um alias apenas se o comando existir.
 	for cmd in "${commands[@]}"; do
 		if command -v "$cmd" >/dev/null; then
 			alias "$cmd"="colourify $cmd"
 		fi
 	done
+
+	# Remove as variáveis temporárias para evitar poluição do ambiente.
 	unset commands cmd
 fi
 
@@ -88,6 +106,7 @@ if [ -f /usr/bin/bat ]; then
 			bat --paging=never --style=plain "$@"
 		fi
 	}
+
 	# Customize the 'help' command to display colorized output
 	help() {
 		if [ $# -eq 0 ]; then
@@ -99,12 +118,28 @@ if [ -f /usr/bin/bat ]; then
 fi
 
 # ----- History Configuration -----
-# Configure shell history settings
-HISTCONTROL=ignoreboth # Ignore duplicate and space-prefixed commands
-shopt -s histappend    # Append to history file instead of overwriting it
-HISTSIZE=1000          # Number of commands to remember in memory
-HISTFILESIZE=2000      # Number of commands to store in the history file
-shopt -s checkwinsize  # Check and adjust the terminal window size after each command
+# Configurações do histórico do shell
+
+# Define como o histórico lida com comandos duplicados e comandos iniciados com espaço:
+# - `ignoredups`: Ignora comandos duplicados consecutivos.
+# - `ignorespace`: Não adiciona ao histórico comandos que começam com espaço.
+# - `ignoreboth`: Atalho para combinar `ignoredups` e `ignorespace`.
+HISTCONTROL=ignoreboth
+
+# Habilita o modo de anexar (`append`) ao histórico em vez de sobrescrevê-lo.
+# Isso evita que comandos antigos sejam perdidos ao abrir um novo shell.
+shopt -s histappend
+
+# Define o número de comandos mantidos na memória do histórico da sessão atual.
+HISTSIZE=1000
+
+# Define o número máximo de comandos armazenados no arquivo de histórico (`~/.bash_history`).
+HISTFILESIZE=2000
+
+# Habilita a verificação automática do tamanho da janela do terminal após cada comando.
+# Isso corrige problemas onde a saída de comandos pode ser exibida de forma incorreta
+# se a janela for redimensionada.
+shopt -s checkwinsize
 
 # Load custom aliases if ~/.bash_aliases exists
 if [ -f ~/.bash_aliases ]; then
@@ -144,9 +179,11 @@ fi
 # Attach ble.sh if loaded
 if [[ ${BLE_VERSION-} ]]; then
 	# Fix if use old snapshot with new blesh cache
-	if grep -q -m1 _ble_decode_hook ~/.cache/blesh/*/decode.bind.*.bind; then _bleCacheVersion=new; else _bleCacheVersion=old; fi
+	if [[ -d ~/.cache/blesh/ ]]; then
+		if grep -q -m1 _ble_decode_hook ~/.cache/blesh/*/decode.bind.*.bind; then _bleCacheVersion=new; else _bleCacheVersion=old; fi
+		[[ $_bleInstalledVersion != $_bleCacheVersion ]] && rm ~/.cache/blesh/*/[dk]* >/dev/null
+	fi
 	if grep -q -m1 _ble_decode_hook /usr/share/blesh/lib/init-bind.sh; then _bleInstalledVersion=new; else _bleInstalledVersion=old; fi
-	[[ $_bleInstalledVersion != $_bleCacheVersion ]] && rm ~/.cache/blesh/*/[dk]*
 	ble-attach
 	# FZF Configuration
 	if [ -f /usr/share/fzf/key-bindings.bash ]; then

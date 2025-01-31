@@ -2824,14 +2824,6 @@ chili-correctionssherror() {
 	} >>~/.ssh/config
 }
 
-hsync() { chili-hsync "$@"; }
-chili-hsync() {
-	rsync --progress -Cravzp --rsh='ssh -l u356719782 -p 65002' \
-		/github/ChiliOS/packages/core/ \
-		u356719782@185.211.7.40:/home/u356719782/domains/chililinux.com/public_html/packages/core/
-}
-export -f chili-hsync
-
 sh_ascii-lines() {
 	if [[ "$LANG" =~ 'UTF-8' ]]; then
 		export NCURSES_NO_UTF8_ACS=0
@@ -3537,6 +3529,6 @@ export -f chili-gclone_repo_and_create_github
 
 sh_bashrc_configure
 sh_ascii-lines
-setkeyboardX
+#setkeyboardX
 GREP_OPTIONS
 sh_setLogPrefix
