@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash disable=SC1091,SC2039,SC2166
 
-ffb() {
+chili-ffb() {
 	local filepath="${1:-.}"      # Caminho a ser pesquisado (padrão: diretório atual)
 	local num_arquivos="${2:-10}" # Número de arquivos a exibir (padrão: 10)
 	local resultado
@@ -27,4 +27,5 @@ ffb() {
 	echo -e "     ${blue}ffb /var/log 20 ${reset}"
 	echo -e "     ${blue}ffb "*.log" ${reset}"
 }
-export -f ffb
+export -f chili-ffb
+alias ffb=chili-ffb

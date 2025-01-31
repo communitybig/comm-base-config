@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash disable=SC1091,SC2039,SC2166
 
-function ff() {
+chili-ff() {
     local filepath=$1
     local num_arquivos=$2
     local intervalo=$3
@@ -34,4 +34,5 @@ function ff() {
     echo "Intervalo de tempo (\$3): ${intervalo:-Todos} (minutos)"
     echo "Uso: ${red}ff "*.c"${reset} or ${red}ff "*.c" 10 | xargs commando${reset} or ${red}ff "*.c" | xargs cp -v /tmp${reset}"
 }
-export -f ff
+export -f chili-ff
+alias ff=chili-ff
