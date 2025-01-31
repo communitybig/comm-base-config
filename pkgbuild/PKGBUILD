@@ -1,6 +1,6 @@
 # Maintainer: Vilmar Catafesta <vcatafesta@gmail.com>
 
-pkgname="comm-base-config"
+pkgname=comm-base-config
 pkgdesc="Package configuration BASE"
 #depends=('')
 #makedepends=('')
@@ -44,9 +44,4 @@ package() {
   if [ -f "README.md" ]; then
     install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
   fi
-
-  # seg 18 nov 2024 00:29:09 -04
-  # Add link to bin path
-  mkdir "${pkgdir}/usr/bin"
-  ln -sf "/usr/share/libalpm/scripts/chili-update-bigapps-category-in-desktopfiles.sh" "${pkgdir}/usr/bin/chili-update-bigapps-category-in-desktopfiles.sh"
 }
