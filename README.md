@@ -1,3 +1,3 @@
-# pkgbuild-template
+# comm-base-config
 
-Package description
+Package configuration BASE
