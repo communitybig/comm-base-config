@@ -1,6 +1,6 @@
 # Maintainer: Vilmar Catafesta <vcatafesta@gmail.com>
 
-pkgname=comm-base-config"
+pkgname="comm-base-config"
 pkgdesc="Package configuration BASE"
 #depends=('')
 #makedepends=('')
