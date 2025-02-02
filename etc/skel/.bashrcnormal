@@ -177,7 +177,7 @@ fi
 #	export PS1="${RED}\u@\h${NC}:${BLUE}\w${NC} \$(get_exit_status) "
 #fi
 if [[ "$LANG" =~ 'UTF-8' ]]; then
-  export NCURSES_NO_UTF8_ACS=0
+  export NCURSES_NO_UTF8_ACS=1
 else
   export NCURSES_NO_UTF8_ACS=1
 fi

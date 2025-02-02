@@ -4,9 +4,9 @@
 
 #Isso força o dialog a usar caracteres ASCII básicos para as bordas.
 if [[ "$LANG" =~ 'UTF-8' ]]; then
-  export NCURSES_NO_UTF8_ACS=0
-  else
   export NCURSES_NO_UTF8_ACS=1
+else
+  export NCURSES_NO_UTF8_ACS=0
 fi
 
 # ----- PATH Configuration -----
