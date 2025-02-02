@@ -2825,11 +2825,14 @@ chili-correctionssherror() {
 }
 
 sh_ascii-lines() {
-	if [[ "$LANG" =~ 'UTF-8' ]]; then
-		export NCURSES_NO_UTF8_ACS=0
-	else
-		export NCURSES_NO_UTF8_ACS=1
-	fi
+  #Isso força o dialog a usar caracteres ASCII básicos para as bordas.
+  #Testa se o terminal suporta caracteres gráficos estendidos
+  #if [[ "$LANG" =~ 'UTF-8' ]]; then
+  if [[ "$(printf '\u250C')" =~ "┌" ]]; then
+    export NCURSES_NO_UTF8_ACS=1  # Terminal suporta ACS
+  else
+    export NCURSES_NO_UTF8_ACS=0  # Terminal NÃO suporta ACS
+  fi
 }
 
 chili-mountmazon() {
