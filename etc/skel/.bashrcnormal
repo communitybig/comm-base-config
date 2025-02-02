@@ -4,6 +4,15 @@
 
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/games:/sbin:$HOME/bin"
 
+#Isso força o dialog a usar caracteres ASCII básicos para as bordas.
+#Testa se o terminal suporta caracteres gráficos estendidos
+#if [[ "$LANG" =~ 'UTF-8' ]]; then
+if [[ "$(printf '\u250C')" =~ "┌" ]]; then
+  export NCURSES_NO_UTF8_ACS=1  # Terminal suporta ACS
+else
+  export NCURSES_NO_UTF8_ACS=0  # Terminal NÃO suporta ACS
+fi
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -176,11 +185,7 @@ fi
 ##	export PS1="${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV)) }${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$(get_exit_status) "
 #	export PS1="${RED}\u@\h${NC}:${BLUE}\w${NC} \$(get_exit_status) "
 #fi
-if [[ "$LANG" =~ 'UTF-8' ]]; then
-  export NCURSES_NO_UTF8_ACS=1
-else
-  export NCURSES_NO_UTF8_ACS=1
-fi
+
 export PS2="\[${yellow}\]→ \[${reset}\]"
 export PS4=$'${red}${0##*/}${green}[$FUNCNAME]${pink}[$LINENO]${reset} '
 # . /usr/share/blesh/ble.sh
