@@ -3,7 +3,11 @@
 # -------------------------------------------------
 
 #Isso força o dialog a usar caracteres ASCII básicos para as bordas.
-export NCURSES_NO_UTF8_ACS=1
+if [[ "$LANG" =~ 'UTF-8' ]]; then
+  export NCURSES_NO_UTF8_ACS=0
+  else
+  export NCURSES_NO_UTF8_ACS=1
+fi
 
 # ----- PATH Configuration -----
 # Add custom and standard binary locations to PATH for command execution
