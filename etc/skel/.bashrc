@@ -2,6 +2,9 @@
 # .bashrc Configuration
 # -------------------------------------------------
 
+#Isso força o dialog a usar caracteres ASCII básicos para as bordas.
+export NCURSES_NO_UTF8_ACS=1
+
 # ----- PATH Configuration -----
 # Add custom and standard binary locations to PATH for command execution
 PATH="$PATH:.:$HOME/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/games:/sbin:$HOME/bin:$HOME/.local/bin:"
