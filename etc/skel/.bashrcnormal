@@ -4,15 +4,6 @@
 
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/bin:/usr/games:/sbin:$HOME/bin"
 
-#Isso força o dialog a usar caracteres ASCII básicos para as bordas.
-#Testa se o terminal suporta caracteres gráficos estendidos
-#if [[ "$LANG" =~ 'UTF-8' ]]; then
-if [[ "$(printf '\u250C')" =~ "┌" ]]; then
-  export NCURSES_NO_UTF8_ACS=1  # Terminal suporta ACS
-else
-  export NCURSES_NO_UTF8_ACS=0  # Terminal NÃO suporta ACS
-fi
-
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -142,11 +133,6 @@ fi
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# some more ls aliases
-#alias ll='ls -l'
-#alias la='ls -A'
-#alias l='ls -CF'
-
 # Alias definitions.
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
@@ -185,7 +171,6 @@ fi
 ##	export PS1="${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV)) }${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$(get_exit_status) "
 #	export PS1="${RED}\u@\h${NC}:${BLUE}\w${NC} \$(get_exit_status) "
 #fi
-
 export PS2="\[${yellow}\]→ \[${reset}\]"
 export PS4=$'${red}${0##*/}${green}[$FUNCNAME]${pink}[$LINENO]${reset} '
 # . /usr/share/blesh/ble.sh
@@ -202,7 +187,68 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-# Restart your shell for the changes to take effect.
+# ----- GRC-RS Configuration -----
+# Enable colorized output for various commands
+GRC="/usr/bin/grc-rs"
+if tty -s && [ -n "$TERM" ] && [ "$TERM" != "dumb" ] && command -v "$GRC" >/dev/null; then
+
+  # Define um alias para facilitar a aplicação do grc-rs nos comandos.
+  alias colourify="$GRC"
+
+  # Lista de comandos que serão configurados para saída colorida.
+  commands=(
+    ant blkid configure df diff dig dnf docker-machinels dockerimages dockerinfo
+    dockernetwork dockerps dockerpull dockersearch dockerversion du fdisk
+    findmnt go-test ifconfig iostat_sar ip ipaddr ipneighbor iproute iptables
+    irclog iwconfig kubectl last ldap lolcat lsattr lsblk lsmod lsof lspci
+    lsusb mount mtr mvn netstat nmap ntpdate ping ping2 proftpd pv
+    semanageboolean semanagefcontext semanageuser sensors showmount sockstat
+    ss stat sysctl tcpdump traceroute tune2fs ulimit uptime vmstat wdiff yaml
+  )
+
+  # Itera pela lista de comandos e cria um alias apenas se o comando existir.
+  for cmd in "${commands[@]}"; do
+    if command -v "$cmd" >/dev/null; then
+      alias "$cmd"="colourify $cmd"
+    fi
+  done
+
+  # Remove as variáveis temporárias para evitar poluição do ambiente.
+  unset commands cmd
+fi
+
+# Set GCC color settings for error and warning messages
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# Use 'bat' as a replacement for 'cat' with improved output formatting if available
+if [ -f /usr/bin/bat ]; then
+  cat() {
+    local use_cat=false
+    # Check if any argument contains -v, -e, -t or their combinations
+    for arg in "$@"; do
+      if [[ "$arg" =~ ^-[vet]+$ ]]; then
+        use_cat=true
+        break
+      fi
+    done
+
+    # If no special options, use bat
+    if [ "$use_cat" == true ]; then
+      command cat "$@"
+    else
+      bat --paging=never --style=plain "$@"
+    fi
+  }
+
+  # Customize the 'help' command to display colorized output
+  help() {
+    if [ $# -eq 0 ]; then
+      command help
+    else
+      "$@" --help 2>&1 | bat --paging=never --style=plain --language=help
+    fi
+  }
+fi
 
 welcome() {
 	if command -v hostnamectl; then
@@ -220,6 +266,6 @@ welcome() {
 	printf 'Server load    :  %s\n' "$load"
 	printf 'Server Uptime  : %s\n' "$(uptime)"
 	printf 'User           :  %s %s\n' "$(whoami)" "$(id)"
-	printf 'Link to distro :  https://communitybig.org/ \n'
+	printf 'Link to distro :  https://chililinux.com/void/ \n'
 }
 welcome
