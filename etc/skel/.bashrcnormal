@@ -266,6 +266,6 @@ welcome() {
 	printf 'Server load    :  %s\n' "$load"
 	printf 'Server Uptime  : %s\n' "$(uptime)"
 	printf 'User           :  %s %s\n' "$(whoami)" "$(id)"
-	printf 'Link to distro :  https://chililinux.com/void/ \n'
+	printf 'Link to distro :  https://communitybig.org/ \n'
 }
 welcome
