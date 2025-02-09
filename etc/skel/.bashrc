@@ -251,7 +251,7 @@ if [ -f /usr/bin/bat ]; then
 fi
 
 welcome() {
-	if command -v hostnamectl; then
+	if command -v hostnamectl >/dev/null; then
 		hostnamectl
 		echo
 	fi
