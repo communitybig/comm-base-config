@@ -44,10 +44,6 @@ post_install() {
   local pkgname=comm-base-config
   echo "Configuring the package after installation..."
 
-  # Sobrescreve o arquivo plymouthd.conf com a versão do pacote
-  cp -f /usr/lib/manjaro-tools/util-live.sh /usr/lib/manjaro-tools/util-live.sh.pacnew
-  cp -f /usr/lib/manjaro-tools/util-live.sh.community /usr/lib/manjaro-tools/util-live.sh
-
 	# Copiar a estrutura para os diretórios de destino
 	local dirs=("usr" "etc" "opt")
 
@@ -58,6 +54,12 @@ post_install() {
 			cp -a "/usr/share/${pkgname}/${dir}" "/"
 		fi
 	done
+
+  # Sobrescreve o arquivo plymouthd.conf com a versão do pacote
+  cp -af /usr/lib/manjaro-tools/util-live.sh /usr/lib/manjaro-tools/util-live.sh.pacnew
+  cp -af /usr/lib/manjaro-tools/util-live.sh.community /usr/lib/manjaro-tools/util-live.sh
+  cp -af /usr/share/${pkgname}/usr/lib/manjaro-tools/util-live.sh.community /usr/lib/manjaro-tools/util-live.sh
+  chmod +x /usr/lib/manjaro-tools/util-live.sh
 }
 
 # Function executed before package upgrade

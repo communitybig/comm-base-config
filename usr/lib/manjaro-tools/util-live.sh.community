@@ -282,8 +282,10 @@ configure_language() {
 	if [[ -d /run/openrc ]]; then
 		sed -i "s/keymap=.*/keymap=\"${keytable}\"/" /etc/conf.d/keymaps
 	fi
-	echo "KEYMAP=${keytable}" >/etc/vconsole.conf
-	echo "FONT=${font}" >/etc/vconsole.conf
+	{
+	  echo "KEYMAP=${keytable}"
+	  echo "FONT=${font}"}
+  } >/etc/vconsole.conf
 	echo "LANG=${lang}.UTF-8" >/etc/locale.conf
 	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 
