@@ -43,6 +43,11 @@
 post_install() {
   local pkgname=comm-base-config
   echo "Configuring the package after installation..."
+
+  # Sobrescreve o arquivo plymouthd.conf com a versão do pacote
+  cp -f /usr/lib/manjaro-tools/util-live.sh /usr/lib/manjaro-tools/util-live.sh.pacnew
+  cp -f /usr/lib/manjaro-tools/util-live.sh.community /usr/lib/manjaro-tools/util-live.sh
+
 	# Copiar a estrutura para os diretórios de destino
 	local dirs=("usr" "etc" "opt")
 
