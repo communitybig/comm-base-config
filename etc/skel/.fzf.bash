@@ -6,8 +6,10 @@ fi
 
 # Auto-completion
 # ---------------
-[[ $- == *i* ]] && source "/usr/share/fzf/completion.bash" 2> /dev/null
+if [[ $- == *i* ]]; then
+  [[-e "/usr/share/fzf/completion.bash" ]] && source "/usr/share/fzf/completion.bash" 2> /dev/null
+fi
 
 # Key bindings
 # ------------
-source "/usr/share/fzf/key-bindings.bash"
+[[-e "/usr/share/fzf/key-bindings.bash" ]] && source "/usr/share/fzf/key-bindings.bash" 2> /dev/null
