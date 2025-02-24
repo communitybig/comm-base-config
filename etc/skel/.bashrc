@@ -53,12 +53,12 @@ ALERT=${BWhite}${On_Red} # Bold White on red background
 
 # Função para obter o status do último comando
 function get_exit_status() {
-	local status="$?"
-	if [ $status -eq 0 ]; then
-		echo -e "${YELLOW}${status} ${GREEN}✔ "
-	else
-		echo -e "${YELLOW}${status} ${RED}✘ "
-	fi
+  local status="$?"
+  if [ $status -eq 0 ]; then
+    echo -e "${YELLOW}${status} ${GREEN}✔${RESET}"
+  else
+    echo -e "${YELLOW}${status} ${RED}✘${RESET}"
+  fi
 }
 
 HISTCONTROL=ignoreboth # don't put duplicate lines or lines starting with space in the history.
@@ -104,9 +104,9 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-	PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ \$(get_exit_status)"
+  PS1="${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ \$(get_exit_status) "
 else
-	PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w\$ \$(get_exit_status)"
+  PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w\$ \$(get_exit_status) "
 fi
 unset color_prompt force_color_prompt
 

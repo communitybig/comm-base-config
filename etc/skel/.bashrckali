@@ -109,15 +109,15 @@ if [ "$color_prompt" = yes ]; then
 		prompt_symbol=🦾
 	fi
 
-	# Função para obter o status do último comando
-	function get_exit_status() {
-	   local status="$?"
-	   if [ $status -eq 0 ]; then
-	      printf "${RESET}${status} ${GREEN}✔ ${RESET}"
-	   else
-	      printf "${YELLOW}${status} ${RED}✘ "
-	   fi
-	}
+  # Função para obter o status do último comando
+  function get_exit_status() {
+    local status="$?"
+    if [ $status -eq 0 ]; then
+      echo -e "${YELLOW}${status} ${GREEN}✔${RESET}"
+    else
+      echo -e "${YELLOW}${status} ${RED}✘${RESET}"
+    fi
+  }
 
 	case "$PROMPT_ALTERNATIVE" in
 	twoline)
