@@ -2,12 +2,6 @@
 
 pkgname=comm-base-config
 pkgdesc="Package configuration BASE"
-#depends=('')
-#makedepends=('')
-#optdepends=('')
-#conflicts=('')
-#provides=('')
-#replaces=('')
 pkgver=$(date +%Y%m%d)
 pkgrel=$(date +%H%M)
 arch=('any')
