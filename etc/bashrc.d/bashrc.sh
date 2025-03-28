@@ -620,7 +620,7 @@ export -f chili-horacerta
 alias horacerta=chili-horacerta
 
 chili-GREP_OPTIONS() { GREP_OPTIONS='--color=auto'; }
-export -f GREP_OPTIONS
+export -f chili-GREP_OPTIONS
 alias GREP_OPTIONS=chili-GREP_OPTIONS
 
 chili-printeradd() { chili-addprinter "$@"; }
@@ -3368,6 +3368,7 @@ chili-conf-tty8() {
 	sudo chmod g+rw /dev/tty8
 	groups
 }
+export -f chili-conf-tty8
 
 chili-cpc() {
 	origem=$(cut -d':' -f1 <<<"$1")
