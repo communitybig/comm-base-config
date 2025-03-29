@@ -7,6 +7,8 @@ export TMPDIR=/dev/shm
 #trancastderr 2>&-
 PROMPT_DIRTRIM=0
 SAVEIFS=$IFS
+LIBRARY=${LIBRARY:-'/etc/bashrc.d'}
+source "$LIBRARY"/core.sh
 
 die() {
   local msg="$1"
@@ -32,8 +34,8 @@ msg_raw() {
 }
 
 msg() {
-	local msg="$1"
-	echo -e "BP=>${cyan}running: ${yellow}${msg}${reset}"
+  local msg="$1"
+  echo -e "BP=>${cyan}running: ${yellow}${msg}${reset}"
 }
 
 msg_ok() {
