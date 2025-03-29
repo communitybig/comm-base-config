@@ -7,18 +7,14 @@ export TMPDIR=/dev/shm
 #trancastderr 2>&-
 PROMPT_DIRTRIM=0
 SAVEIFS=$IFS
-LIBRARY=${LIBRARY:-'/etc/bashrc.d'}
-source "$LIBRARY"/core.sh
 
-chili-die() {
+die() {
   local msg="$1"
   echo -e "BP=>${cyan}error: ${red}${msg}${reset}"
   exit 1
 }
-export -f chili-die
-alias die=chili-die
 
-chili-msg_raw() {
+msg_raw() {
 	local msg="$1"
 
 	# Verifica se existe ':' na mensagem
@@ -34,30 +30,22 @@ chili-msg_raw() {
 	fi
 	echo -e "$msg"
 }
-export -f chili-msg_raw
-alias msg_raw=chili-msg_raw
 
-chili-msg() {
-  local msg="$1"
-  echo -e "=>${cyan}running: ${yellow}${msg}${reset}"
+msg() {
+	local msg="$1"
+	echo -e "BP=>${cyan}running: ${yellow}${msg}${reset}"
 }
-export -f chili-msg
-alias msg=chili-msg
 
-chili-msg_ok() {
+msg_ok() {
 	local msg="$1"
 	echo -e "BP=>${cyan}feito: ${green}${msg}${reset}"
 }
-export -f chili-msg_ok
-alias msg_ok=chili-msg_ok
 
-chili-msg_run() {
+msg_run() {
 	local msg="$1"
 	echo -e "BP=>${cyan}running: ${yellow}${msg}${reset}"
 	eval "$msg"
 }
-export -f chili-msg_run
-alias msg_run=chili-msg_run
 
 msg_info() {
 	local msg="$1"
@@ -402,7 +390,7 @@ function debug() {
 
 # Function to run upon exit of shell.
 _exit() {
-	echo -e "${red}Hasta la vista, baby${reset}"
+	echo -e "${BRed}Hasta la vista, baby${NC}"
 }
 trap _exit EXIT
 
@@ -415,9 +403,8 @@ get_exit_status() {
 		echo -e "${RED}✘${MAGENTA}${status}"
 	fi
 }
-export -f get_exit_status
 
-chili-as_root() {
+as_root() {
 	if [ $EUID = 0 ]; then
 		$*
 	elif [ -x /usr/bin/sudo ]; then
@@ -426,51 +413,29 @@ chili-as_root() {
 		su -c \\"$*\\"
 	fi
 }
-export -f chili-as_root
-alias as_root=chili-as_root
+export -f as_root
 
 #zerobyte() { for f in "${1[@]}"; do	echo >"$f";	done; }; export -f zerobyte
-load() { source $1; }
 has() { command -v "$1" >/dev/null; }
 chili-count-extension() { ls | cut -sf2- -d. | sort | uniq -c; }
-export -f chili-count-extension
-alias count-extension=chili-count-extension
-
 chili-count-vogal() {
 	local word="$1"
 	tr '[:upper:]' '[:lower:]' <<<"$word" | grep -o '[aeiou]' | sort | uniq -c
 }
-export -f chili-count-vogal
-alias count-vogal=chili-count-vogal
-
-chili-ddel2() { find . -iname $1 -print0 | xargs rm --verbose; }
-export -f chili-ddel2
-alias ddel2=chili-ddel2
-
-chili-tolower() { find . -name "*$1*" | while read; do mv "$REPLY" "${REPLY,,}"; done; }
-export -f chili-tolower
-alias tolower=chili-tolower
-
-chili-toupper() { find . -name "*$1*" | while read; do mv "$REPLY" "${REPLY^^}"; done; }
-export -f chili-toupper
-alias chili-toupper=toupper
-
-chili-path() { echo -e "${PATH//:/\\n}"; }
-export -f chili-path
-alias path=chili-path
-
-chili-rdel() {
+#xdel()   { find . -name "*$1*" | xargs rm -fv ; }
+ddel2() { find . -iname $1 -print0 | xargs rm --verbose; }
+tolower() { find . -name "*$1*" | while read; do mv "$REPLY" "${REPLY,,}"; done; }
+toupper() { find . -name "*$1*" | while read; do mv "$REPLY" "${REPLY^^}"; done; }
+path() { echo -e "${PATH//:/\\n}"; }
+load() { source $1; }
+rdel() {
 	find . -iname "$1" -exec rm -f {} +
 }
-export -f chili-rdel
-alias rdel=chili-rdel
-
-chili-delr() {
-  find . -iname "$1" -exec rm -f {} \;
+export -f rdel
+delr() {
+	find . -iname "$1" -exec rm -f {} \;
 }
-export -f chili-delr
-alias delr=chili-delr
-
+export -f delr
 chili-toSpaceFixer() {
 	local novo_nome
 	find . -name "*$1*" | while read; do
@@ -481,7 +446,7 @@ chili-toSpaceFixer() {
 export -f chili-toSpaceFixer
 alias toSpaceFixer=chili-toSpaceFixer
 
-chili-xdel() {
+xdel() {
 	local filepath=$1
 	local num_arquivos=$2
 	local intervalo=$3
@@ -493,16 +458,22 @@ chili-xdel() {
 		echo "        xdel '*.log'"
 		return 1
 	}
+
 	local find_command="sudo find . -iname '$filepath'"
+
 	if [[ -n "$intervalo" ]]; then
 		find_command+=" -mmin -${intervalo}"
 	fi
+
 	#	local format_string="\033[1;32m%TY-%Tm-%Td %TH:%TM:%TS\033[0m \033[1;34m%p\033[0m\n"
 	#	find_command+=" -printf \"$format_string\" | sort"
+
 	if [[ -n "$num_arquivos" ]]; then
 		find_command+=" | tail -n $num_arquivos"
 	fi
+
 	find_command+=" | xargs rm --verbose --force"
+
 	resultado=$(eval "$find_command")
 	echo "=== Resultado ==="
 	echo "$resultado" | nl
@@ -512,19 +483,15 @@ chili-xdel() {
 	echo "Número de arquivos (\$2): ${num_arquivos:-Todos}"
 	echo "Intervalo de tempo (\$3): ${intervalo:-Todos} (minutos)"
 }
-export -f chili-xdel
-alias xdel=chili-xdel
 
-chili-lsa() {
+lsa() {
 	echo -n ${orange}
 	#	ls -l | awk '/^-/ {print $9}'
 	#	ls -la | grep -v "^d"
 	find . -type f -exec basename {} \;
 }
-export -f chili-lsa
-alias lsa=chili-lsa
 
-chili-lsd() {
+lsd() {
 	#	printf "%s\n" "${orange}"
 	#	ls -l | awk '/^d/ {print $9}'
 	#	ls -la | grep "^d"
@@ -532,18 +499,14 @@ chili-lsd() {
 	#	printf "%s" "${reset}"
 	ls -ld --color=always -- */ 2>/dev/null
 }
-export -f chili-lsd
-alias lsd=chili-lsd
 
 chili-session() {
-  local _session="$XDG_SESSION_TYPE"
-  echo "Desktop: $XDG_CURRENT_DESKTOP"
-  echo "Session: $_session"
+	local _session="$XDG_SESSION_TYPE"
+	echo "Desktop: $XDG_CURRENT_DESKTOP"
+	echo "Session: $_session"
 }
-export -f chili-session
-alias session=chili-session
 
-chili-setkeyboardX() {
+setkeyboardX() {
 	#	local _session=$(loginctl show-session "$XDG_SESSION_ID" -p Type --value)
 	local _session="$XDG_SESSION_TYPE"
 	echo "Desktop: $XDG_CURRENT_DESKTOP"
@@ -557,8 +520,6 @@ chili-setkeyboardX() {
 	#	sudo setxkbmap -print -verbose 10
 	localectl status
 }
-export -f chili-setkeyboardX
-alias setkeyboardX=chili-setkeyboardX
 
 prompt_git() {
 	local s=''
@@ -612,22 +573,19 @@ chili-filehoracerta() {
 export -f chili-filehoracerta
 alias filehoracerta=chili-filehoracerta
 
-chili-horacerta() {
+horacerta() {
 	sudo ntpd -q -g
 	sudo hwclock --systohc
 }
-export -f chili-horacerta
-alias horacerta=chili-horacerta
+export -f horacerta
 
-chili-GREP_OPTIONS() { GREP_OPTIONS='--color=auto'; }
-export -f chili-GREP_OPTIONS
-alias GREP_OPTIONS=chili-GREP_OPTIONS
+GREP_OPTIONS() { GREP_OPTIONS='--color=auto'; }
+export -f GREP_OPTIONS
 
-chili-printeradd() { chili-addprinter "$@"; }
-export -f chili-printeradd
-alias printeradd=chili-printeradd
+printeradd() { addprinter "$@"; }
+export -f printeradd
 
-chili-addprinter() {
+addprinter() {
 	sudo cupsctl --remote-any --share-printers
 	sudo lpadmin -p LPT1 -E -v ipp://10.0.0.99/p1 -L "EPSON LX300 em Atendimento" -m everywhere -o print-is-shared=true -u allow:all
 	#	sudo lpadmin -p LPT1 -E -v socket://10.0.0.99 -m everywhere -o print-is-shared=true -u allow:all
@@ -639,17 +597,15 @@ chili-addprinter() {
 	#	sudo lpadmin -p PRINTERNAME -E -v smb://10.0.0.68/P1 -L "LOCATION" -o auth-info-required=negotiate -u allow:all
 	sudo lpadmin -d LPT1
 }
-export -f chili-addprinter
-alias addprinter=chili-addprinter
+export -f addprinter
 
-chili-mostra() {
+mostra() {
 	sudo lpstat -s
 	sudo lpq
 }
-export -f chili-mostra
-alias mostra=chili-mostra
+export -f mostra
 
-chili-cancela() {
+cancela() {
 	sudo systemctl stop lprng
 	sudo rm -rf /var/spool/lpd
 	sudo rm /home/sci/LPT*
@@ -659,16 +615,14 @@ chili-cancela() {
 	sudo lprm
 	sudo systemctl status lprng
 }
-export -f chili-cancela
-alias cancela=chili-cancela
+export -f cancela
 
-chili-email() {
+email() {
 	echo "CORPO" | mail -s "Subject" -A /etc/bashrc user@server
 }
-export -f chili-email
-alias email=chili-email
+export -f email
 
-chili-modo() {
+modo() {
 	echo -n 'atual mode : '
 	if ! systemctl get-default; then
 		if [[ $1 = @(grafico|on|g|graphical) ]]; then
@@ -680,8 +634,7 @@ chili-modo() {
 	echo -n 'new mode   : '
 	systemctl get-default
 }
-export -f chili-modo
-alias modo=chili-modo
+export -f modo
 
 chili-sshsemsenha() {
 	local host="$1"
@@ -717,7 +670,7 @@ chili-sshsemsenha() {
 export -f chili-sshsemsenha
 alias sshsemsenha=chili-sshsemsenha
 
-chili-xdel1() {
+xdel1() {
 	arr=$(find . -iname "${1}")
 
 	echo "${arr[*]}"
@@ -725,8 +678,6 @@ chili-xdel1() {
 		rm -f $i
 	done
 }
-export -f chili-xdel1
-alias xdel1=chili-xdel1
 
 chili-ramdisk() {
 	mkdir /mnt/ramdisk
@@ -734,8 +685,6 @@ chili-ramdisk() {
 	#fstab
 	#tmpfs       /mnt/ramdisk tmpfs   nodev,nosuid,noexec,nodiratime,size=512M   0 0
 }
-export -f chili-ramdisk
-alias ramdisk=chili-ramdisk
 
 chili-create-img-truncate() {
 	local image=$1
@@ -762,8 +711,6 @@ usage:
 EOF
 	fi
 }
-export -f chili-create-img-truncate
-alias create-img-truncate=chili-create-img-truncate
 
 chili-qemu-img-create() {
 	local image=$1
@@ -799,7 +746,6 @@ usage:
 EOF
 	fi
 }
-export -f chili-qemu-img-create
 
 chili-qemu-img-convert-raw-to-qcow2() {
 	if test $# -ge 2; then
@@ -811,7 +757,6 @@ usage:
 EOF
 	fi
 }
-export -f chili-qemu-img-convert-raw-to-qcow2
 
 chili-qemu-img-convert-vdi-to-raw() {
 	if test $# -ge 2; then
@@ -823,7 +768,6 @@ usage:
 EOF
 	fi
 }
-export -f chili-qemu-img-convert-vdi-to-raw
 
 chili-qemurunqcow2() {
 	#		-hda $1				\
@@ -837,7 +781,6 @@ chili-qemurunqcow2() {
 		-machine type=q35,smm=on,accel=kvm,usb=on \
 		-enable-kvm
 }
-export -f chili-qemurunqcow2
 
 chili-qemurunuefi() {
 	local ovmf_code
@@ -881,9 +824,8 @@ usage:
 EOF
 	fi
 }
-export -f chili-qemurunuefi
 
-chili-frfloppy() {
+frfloppy() {
 	if test $# -ge 1; then
 		IMG="$1"
 		[[ -f "$IMG" ]] || {
@@ -910,8 +852,6 @@ usage:
 EOF
 	fi
 }
-export -f chili-frfloppy
-alias frfloppy=chili-frfloppy
 
 detect_audio_server() {
 	if pgrep -x pipewire >/dev/null; then
@@ -924,7 +864,6 @@ detect_audio_server() {
 		echo "none"
 	fi
 }
-export -f detect_audio_server
 
 chili-qemurunfile() {
 	local random_port=$(shuf -i 4444-45000 -n 1)
@@ -1130,26 +1069,21 @@ chili-videoultrahd() {
 }
 export -f chili-videoultrahd
 
-chili-tms() {
+tms() {
 	#	sudo journalctl -f
 	sudo dmesg -w -T -x
 }
-export -f chili-tms
-alias tms=chili-tms
+export -f tms
 
-chili-sr() {
-  sudo systemctl restart $1
-  sudo systemctl status $1
+sr() {
+	sudo systemctl restart $1
+	sudo systemctl status $1
 }
-export -f chili-sr
-alias sr=chili-sr
 
-chili-st() {
+st() {
 	sudo systemctl stop $1
 	sudo systemctl status $1
 }
-export -f chili-st
-alias st=chili-st
 
 chili-lsvideo() {
 	echo -e "1. xrandr"
@@ -1324,7 +1258,6 @@ chili-gmerge() {
 	return $?
 }
 export -f chili-gmerge
-alias gmerge=chili-gmerge
 
 chili-gcommit() {
 	local cabec="$1" # ex: weblib.sh: sh_webapp_backup - Erro ao fazer o backup
@@ -1348,7 +1281,6 @@ chili-gcommit() {
 	return 0
 }
 export -f chili-gcommit
-alias gcommit=chili-gcommit
 
 chili-gpull() {
 	local red=$(tput bold)$(tput setaf 196)
@@ -1362,7 +1294,6 @@ chili-gpull() {
 	git pull --no-ff
 }
 export -f chili-gpull
-alias gpull=chili-gpull
 
 chili-gpush() {
 	local branch="$1" # ex: weblib.sh: sh_webapp_backup - Erro ao fazer o backup
@@ -1400,69 +1331,25 @@ chili-gpush() {
 	return 0
 }
 export -f chili-gpush
-alias gpush=chili-gpush
 
-chili-gitaddupstream() {
-  local remote="$1"
-  local red=$(tput bold)$(tput setaf 196)
-  local cyan=$(tput setaf 6)
-	local yellow=$(tput bold)$(tput setaf 3)
-  local reset=$(tput sgr0)
-  local mainbranch="$(git symbolic-ref --short HEAD 2>/dev/null || echo "main")"
+chili-gaddupstream() {
+	local remote="$1"
+	local red=$(tput bold)$(tput setaf 196)
+	local cyan=$(tput setaf 6)
+	local reset=$(tput sgr0)
+	local mainbranch="$(chili-getbranch)"
 
-  if test $# -eq 0; then
-    echo "==>  ${yellow}A função gitaddupstream automatiza a sincronização de um repositório Git local com um repositório upstream,"
-    echo "     adicionando o remote, buscando, mesclando e enviando as alterações para manter seu fork atualizado. 🚀${reset}"
-    echo "uso: ${cyan}gitaddupstream <repositorio-upstream>${reset}"
-    echo " ex: ${cyan}gitaddupstream https://github.com/chililinux/chili-utils${reset}"
-    echo "remotes:"
-    git remote -v
-    return 1
-  fi
-
-  # Adicione o repositório original como um remote:
-  echo "${cyan}Adicionando upstream...${reset}"
-  git remote add upstream "$remote" || {
-    echo "${red}Erro: Não foi possível adicionar o upstream.${reset}"
-    return 1
-  }
-
-  # Verifique os remotes:
-  echo "${cyan}Remotes configurados:${reset}"
-  git remote -v
-
-  # Busque as alterações do upstream:
-  echo "${cyan}Buscando alterações do upstream...${reset}"
-  git fetch upstream || {
-    echo "${red}Erro: Não foi possível buscar alterações do upstream.${reset}"
-    return 1
-  }
-
-  # Certifique-se de que está no branch correto:
-  echo "${cyan}Trocando para o branch principal ($mainbranch)...${reset}"
-  git checkout "$mainbranch" || {
-    echo "${red}Erro: Não foi possível trocar para o branch $mainbranch.${reset}"
-    return 1
-  }
-
-  # Mescle as alterações do upstream:
-  echo "${cyan}Mesclando alterações do upstream...${reset}"
-  git merge upstream/"$mainbranch" --allow-unrelated-histories || {
-    echo "${red}Erro: Não foi possível mesclar as alterações. Resolva os conflitos manualmente.${reset}"
-    return 1
-  }
-
-  # Envie as alterações para o seu repositório no GitHub:
-  echo "${cyan}Enviando alterações para o repositório remoto...${reset}"
-  git push origin "$mainbranch" || {
-    echo "${red}Erro: Não foi possível enviar as alterações para o repositório remoto.${reset}"
-    return 1
-  }
-
-  echo "${cyan}Upstream atualizado com sucesso!${reset}"
+	if test $# -eq 0; then
+		echo "uso: ${cyan}gaddupstream <repositorio>${reset}"
+		echo "     ${cyan}gaddupstream https://github.com/biglinux/big-store${reset}"
+		echo "branchs locais:"
+		git remote -v
+		return 1
+	fi
+	git remote add upstream $remote
+	git remote -v
 }
-export -f chili-gitaddupstream
-alias gitaddupstream=chili-gitaddupstream
+export -f chili-gaddupstream
 
 chili-grmupstream() {
 	local remote="$1"
@@ -1482,7 +1369,6 @@ chili-grmupstream() {
 	git remote -v
 }
 export -f chili-grmupstream
-alias grmupstream=chili-grmupstream
 
 chili-gpullupstream() {
 	local remote="$1"
@@ -1514,7 +1400,6 @@ chili-gpullupstream() {
 	git remote -v
 }
 export -f chili-gpullupstream
-alias gpullupstream=chili-gpullupstream
 
 chili-getbranch() {
 	local branch
@@ -1531,7 +1416,6 @@ chili-getbranch() {
 	echo "$branch"
 }
 export -f chili-getbranch
-alias getbranch=chili-getbranch
 
 chili-gbranch() {
 	local branch="$1"
@@ -1554,7 +1438,6 @@ chili-gbranch() {
 	git checkout $atualBranch                                          # Voltando ao Branch anterior a criação do novo Branch
 }
 export -f chili-gbranch
-alias gbranch=chili-gbranch
 
 chili-gto() {
 	local red=$(tput bold)$(tput setaf 196)
@@ -1566,7 +1449,6 @@ chili-gto() {
 	git checkout $1
 }
 export -f chili-gto
-alias gto=chili-gto
 
 chili-gclean() {
 	local clean="$1"
@@ -1604,7 +1486,6 @@ chili-gclean() {
 	log_msg "${green}Feito! #####################################################################${reset}"
 }
 export -f chili-gclean
-alias gclean=chili-gclean
 
 chili-gclean_branch_local_and_remote() {
 	local clean="$1"
@@ -1735,7 +1616,6 @@ chili-ginit() {
 	log_msg "${green}Repositório ${yellow}${REPO_NAME} ${cyan}local ${reset}e no ${cyan}GitHub ${green}criado com sucesso!${reset}"
 }
 export -f chili-ginit
-alias ginit=chili-ginit
 
 chili-gremove() {
 	local your_repository_name="$1"
@@ -1788,7 +1668,6 @@ chili-gremove() {
 	fi
 }
 export -f chili-gremove
-alias gremove=chili-gremove
 
 chili-gclone_all_repo_from_organization() {
 	local ORG_NAME="$1"
@@ -2145,7 +2024,7 @@ EOF
 }
 export -f chili-mkl
 
-chili-makebash() {
+makebash() {
 	local red=$(tput bold)$(tput setaf 196)
 	local cyan=$(tput setaf 6)
 	local reset=$(tput sgr0)
@@ -2251,10 +2130,8 @@ chili-makebash() {
 	#echo $(replicate '=' 80)
 	log_msg "Feito! arquivo ${red}'$prg' ${reset}criado on $PWD"
 }
-export -f chili-makebash
-alias makebash=chili-makebash
 
-chili-mkcobol() {
+mkcobol() {
 	prg='script.cob'
 	if test $# -ge 1; then
 		prg="$1"
@@ -2341,10 +2218,10 @@ chili-mkcobol() {
 	EOF
 	log_msg "Feito! arquivo ${cyan}'$prg' ${reset}criado on $PWD"
 }
-export -f chili-mkcobol
-alias mkcobol=chili-mkcobol
 
-chili-make_cpp_file() {
+mkcpp() { make_cpp_file "$@"; }
+
+make_cpp_file() {
 	prg='main.cpp'
 	if test $# -ge 1; then
 		prg="$1"
@@ -2465,11 +2342,10 @@ chili-make_cpp_file() {
 	EOF
 	log_success_msg2 "Feito! ${cyan}'$prg' ${reset}criado on $PWD"
 }
-export -f chili-make_cpp_file
-alias make_cpp_file=chili-make_cpp_file
-alias mkcpp=chili-make_cpp_file
 
-chili-make_c_file() {
+mkc() { make_c_file "$@"; }
+
+make_c_file() {
 	local red=$(tput bold)$(tput setaf 196)
 	local cyan=$(tput setaf 6)
 	local reset=$(tput sgr0)
@@ -2539,11 +2415,8 @@ chili-make_c_file() {
 		msg "${red}Erro. Abortando..."
 	fi
 }
-export -f chili-make_c_file
-alias make_c_file=chili-make_c_file
-alias mkc=chili-make_c_file
 
-chili-MK() {
+MK() {
 	log_wait_msg "Aguarde, criando arquivo rmake..."
 	cat >rmake <<"EOF"
 #!/bin/bash
@@ -2557,10 +2430,8 @@ EOF
 	sudo chmod +x rmake
 	log_success_msg2 "Feito!"
 }
-export -f chili-MK
-alias MK=chili-MK
 
-chili-MKLIB() {
+MKLIB() {
 	log_wait_msg "Aguarde, criando arquivo rmake..."
 	cat >rmake <<"EOF"
 #!/bin/bash
@@ -2573,10 +2444,8 @@ EOF
 	sudo chmod +x rmake
 	log_success_msg2 "Feito!"
 }
-export -f chili-MKLIB
-alias MKLIB=chili-MKLIB
 
-chili-MKCMAKE() {
+MKCMAKE() {
 	log_wait_msg "Aguarde, criando arquivo rmake..."
 	cat >rmake <<"EOF"
 #!/bin/bash
@@ -2596,10 +2465,8 @@ EOF
 	sudo chmod +x rmake
 	log_success_msg2 "Feito!"
 }
-export -f chili-MKCMAKE
-alias MKCMAKE=chili-MKCMAKE
 
-chili-MKX() {
+MKX() {
 	log_wait_msg "Aguarde, criando arquivo rmake..."
 	cat >rmake <<"EOF"
 #!/bin/bash
@@ -2611,8 +2478,6 @@ EOF
 	sudo chmod +x rmake
 	log_success_msg2 "Feito!"
 }
-export -f chili-MKX
-alias MKX=chili-MKX
 
 chili-bindlfs() {
 	export LFS=/mnt/build_dir
@@ -2626,7 +2491,6 @@ chili-bindlfs() {
 		mkdir -pv "$LFS/$(readlink $LFS/dev/shm)"
 	fi
 }
-export -f chili-bindlfs
 
 chili-repairdirvar() {
 	log_wait_msg "Iniciando reparo do /var/run..."
@@ -2637,9 +2501,8 @@ chili-repairdirvar() {
 	exec >/dev/tty
 	log_success_msg2 "Feito..."
 }
-export -f chili-repairdirvar
 
-chili-ex() {
+ex() {
 	if [ -f $1 ]; then
 		case $1 in
 		*.tar.bz2) tar xvjf $1 ;;
@@ -2666,8 +2529,6 @@ chili-ex() {
 		echo "'$1' is not a valid file!"
 	fi
 }
-export -f chili-ex
-alias ex=chili-ex
 
 chili-converteOldChiPkgToNewZst() {
 	cfiles=$(ls -1 -- *.chi)
@@ -2698,7 +2559,6 @@ chili-converteOldChiPkgToNewZst() {
 		popd &>/dev/null || return
 	done
 }
-export -f chili-converteOldChiPkgToNewZst
 
 chili-removeoldpkgarch() {
 	local nfiles=0
@@ -2748,8 +2608,8 @@ chili-removeoldpkgarch() {
 	done
 	cd $cOldDir || return
 }
-export -f chili-removeoldpkgarch
 
+removeoldpkgchili() { chili-removeoldpkgchili "$@"; }
 chili-removeoldpkgchili() {
 	local arr=
 	local cdir=
@@ -2823,15 +2683,16 @@ chili-removeoldpkgchili() {
 	done
 	shopt -u nullglob # disable suppress error message of a command
 }
+export -f removeoldpkgchili
 export -f chili-removeoldpkgchili
-alias removeoldpkgchili=chili-removeoldpkgchili
 
 chili-calc() {
-  awk 'BEGIN { printf "%.'${2:-0}'f\n" '"$1"'}'
+	awk 'BEGIN { printf "%.'${2:-0}'f\n" '"$1"'}'
 }
-export -f chili-calc
 
-chili-copiapkg() {
+chili-copiapkg() { copiapkg "$@"; }
+
+copiapkg() {
 	for letra in {a..z}; do
 		log_info_msg "Copiando arquivos iniciados com a letra: $letra para diretorio /github/ChiliOS/packages/$letra/"
 		sudo cp $letra* /github/ChiliOS/packages/$letra/ &>/dev/null
@@ -2841,24 +2702,28 @@ chili-copiapkg() {
 		evaluate_retval
 	done
 }
-export -f chili-copiapkg
-alias copiapkg=chili-copiapkg
 
-chili-dw() {
-  if pacman -Sw "$@" --noconfirm --quiet; then
-    paccache -k1 -r
-    fetch -Sa "$@" -f
-  fi
+dw() {
+	if pacman -Sw "$@" --noconfirm --quiet; then
+		paccache -k1 -r
+		fetch -Sa "$@" -f
+	fi
 }
-export -f chili-dw
-alias dw=chili-dw
+export -f dw
 
 # Make your directories and files access rights sane.
-chili-sanitize() {
-  chmod -R u=rwX,g=rX,o= "$@"
+sanitize() {
+	chmod -R u=rwX,g=rX,o= "$@"
 }
-export -f chili-sanitize
-alias sanitize=chili-sanitize
+
+sc1() {
+	pid=$(cat /run/$1.pid 2>/dev/null)
+	if [ -n "${pid}" ]; then
+		statusproc /usr/sbin/$1
+	else
+		service $1 start
+	fi
+}
 
 chili-services() {
 	local idx=0
@@ -2884,15 +2749,14 @@ chili-services() {
 export -f chili-services
 alias services=chili-services
 
-chili-renane() {
+renane() {
 	for f in $1; do
 		mv "$f" ${f/$1/$2 }
 	done
 }
-export -f chili-renane
-alias renane=chili-rename
+export -f renane
 
-chili-xwinserver() {
+xwinserver() {
 	export LIBGL_ALWAYS_INDIRECT
 	export WSL_VERSION
 	export WSL_HOST
@@ -2905,8 +2769,7 @@ chili-xwinserver() {
 	WSL_HOST=$(tail -1 /etc/resolv.conf | cut -d' ' -f2)
 	DISPLAY=$WSL_HOST:0
 }
-export -f chili-xwinserver
-alias xwinserver=chili-xwinserver
+export -f xwinserver
 
 chili-pkgsemdesc() {
 	local nconta=0
@@ -2924,7 +2787,6 @@ chili-pkgsemdesc() {
 	printf "%s\n" "${green}Done!"
 }
 export -f chili-pkgsemdesc
-alias pkgsemdesc=chili-pkgsemdesc
 
 chili-makeramdrive() {
 	sudo modprobe zram >/dev/null
@@ -2943,7 +2805,6 @@ chili-makeramdrive() {
 	#mount /dev/mapper/VG0-DADOS /run/ramdrive
 }
 export -f chili-makeramdrive
-alias makeramdrive=chili-makeramdrive
 
 ssherror() { chili-correctionssherror "$@"; }
 chili-correctionssherror() {
@@ -2962,7 +2823,6 @@ chili-correctionssherror() {
 		echo
 	} >>~/.ssh/config
 }
-export -f chili-correctionssherror
 
 sh_ascii-lines() {
   #Isso força o dialog a usar caracteres ASCII básicos para as bordas.
@@ -2985,27 +2845,23 @@ chili-mountmazon() {
 }
 
 chili-mountvoid() {
-  if losetup -P -f --show /root/tmp/void.img; then
-    losetup
+	if losetup -P -f --show /root/tmp/void.img; then
+		losetup
 	fi
 }
 
-chili-virtualbox-add-nic() {
-  for nic in {2..10}; do
-    VBoxManage modifyvm "chr" --nic$nic bridged --nictype$nic 82540EM --bridgeadapter$nic enp6s0
-  done
+virtualbox-add-nic() {
+	for nic in {2..10}; do
+		VBoxManage modifyvm "chr" --nic$nic bridged --nictype$nic 82540EM --bridgeadapter$nic enp6s0
+	done
 }
-export -f chili-virtualbox-add-nic
-alias virtualbox-add-nic=chili-virtualbox-add-nic
 
-chili-fcopy() {
-  find . -name "*$1*" -exec cp -v {} /tmp \;
+fcopy() {
+	find . -name "*$1*" -exec cp -v {} /tmp \;
 }
-export -f chili-fcopy
-alias fcopy=chili-fcopy
 
 glibc-version() {
-  ldd --version
+	ldd --version
 	ldd "$(which ls)" | grep libc
 	/lib/libc.so.6
 }
@@ -3013,14 +2869,13 @@ export -f glibc-version
 
 chili-mkfstab() {
 	#cp /proc/mounts >> /etc/fstab
-	sudo sed 's/#.*//' /etc/fstab | column --table --table-columns SOURCE,TARGET,TYPE,OPTIONS,PASS,FREQ --table-right PASS,FREQ
+	sed 's/#.*//' /etc/fstab | column --table --table-columns SOURCE,TARGET,TYPE,OPTIONS,PASS,FREQ --table-right PASS,FREQ
 }
-export -f chili-mkfstab
 
 chili-mapadd() { sudo kpartx -uv $1; }
 chili-mapdel() { sudo kpartx -dv $1; }
 
-chili-fid() {
+fid() {
 	if [ $# -eq 0 ]; then
 		echo 'Uso: fid "*.c"'
 		echo '     fid "*"'
@@ -3031,8 +2886,6 @@ chili-fid() {
 	#	echo Arquivos: $(ls -la |grep '^-'|wc -l)"
 	find . -iname "$filepath" -type f | wc -l
 }
-export -f chili-fid
-alias fid=chili-fid
 
 chili-ff() {
 	local filepath=$1
@@ -3160,6 +3013,52 @@ chili-ffc() {
 }
 export -f chili-ffc
 alias ffc=chili-ffc
+
+ffTesting() {
+	local filepath
+	local num_arquivos
+	local intervalo
+	local format_string="\033[1;32m%TY-%Tm-%Td %TH:%TM:%TS\033[0m \033[1;34m%p\033[0m\n"
+	local resultado
+
+	set -f # Desabilita temporariamente a expansão de caminhos
+	#	filepath="${@:1:1}"
+	#	num_arquivos="${@:2:1}"
+	#	intervalo="${@:3:1}"
+	filepath="${*:1:1}"
+	num_arquivos="${*:2:1}"
+	intervalo="${*:3:1}"
+
+	[[ $# -eq 0 ]] && filepath=('*.*')
+	#	local find_command="sudo find . -type f,l -iname '${filepath[@]}' "
+	local find_command="sudo find . -type f,l -iname '${filepath[*]}' "
+	[[ -n "$intervalo" ]] && find_command+=" -mmin -${intervalo}"
+	find_command+=" -printf \"$format_string\" | sort"
+	[[ -n "$num_arquivos" ]] && find_command+=" | tail -n ${num_arquivos}"
+	echo "${green}Searching : ($find_command)${reset}"
+	resultado=$(eval "$find_command")
+	echo "=== Resultado ==="
+	echo "$resultado" | nl
+	echo "=== Parâmetros informados ==="
+	echo "Padrão             (\$1): $filepath"
+	echo "Número de arquivos (\$2): ${num_arquivos:-Todos}"
+	echo "Intervalo de tempo (\$3): ${intervalo:-Todos} (minutos)"
+	echo "Uso: ${red}ff "*.c"${reset} or ${red}ff "*.c" 10 | xargs commando${reset} or ${red}ff "*.c" | xargs cp -v /tmp${reset}"
+	set +f # Habilita a expansão de caminhos novamente
+}
+
+ffOLD() {
+	local filepath=$1
+	if [ $# -eq 0 ]; then
+		filepath='*'"$*"'*'
+		#sudo find . -type f -iname '*'"$*"'*' -ls
+	fi
+	#sudo find . -type f,l -name "$filepath" -ls
+	#sudo find . -type f,l -iname "$filepath" -exec ls -ld --color=auto {} \;
+	sudo find . -type f,l -iname "$filepath" -exec ls -ld --color=auto {} +
+	echo
+	echo "Uso: ${red}ff "*.c"${reset} or ${red}ff "*.c" | xargs commando${reset} or ${red}ff "*.c" | xargs cp -v /tmp${reset}"
+}
 
 chili-ffe() {
 	[ "$1" ] || {
@@ -3368,7 +3267,6 @@ chili-conf-tty8() {
 	sudo chmod g+rw /dev/tty8
 	groups
 }
-export -f chili-conf-tty8
 
 chili-cpc() {
 	origem=$(cut -d':' -f1 <<<"$1")
@@ -3632,7 +3530,6 @@ chili-gclone_repo_and_create_github() {
 }
 export -f chili-gclone_repo_and_create_github
 
-#msg "Loading /etc/bashrc.d/bashrc.sh"
 sh_bashrc_configure
 sh_ascii-lines
 #setkeyboardX
